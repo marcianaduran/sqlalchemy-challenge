@@ -10,4 +10,4 @@ Use Python and SQLAlchemy to do a climate analysis and data exploration of your 
 * Perform a precipitation analysis and then a station analysis.
 
 ## Part 2: Design Your Climate App
-Design a Flask API based on the queries that you just developed.
+Design a Flask API based on the queries just developed.
