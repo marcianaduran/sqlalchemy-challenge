@@ -52,8 +52,8 @@ def precip():
     results = session.query(measurement.date,measurement.prcp).filter(measurement.date >= previous_year).all()
     session.close()
     precip = {}
-    precip["date"] = measurement.date
-    precip["precipitation"] = measurement.precipitation
+    precip["date"] = [x[0] for x in results]
+    precip["precipitation"] = [x[1] for x in results]
     return jsonify(precip)
 
 @app.route("/api/v1.0/stations")
@@ -83,5 +83,5 @@ def stats(start=None,end=None):
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
 
