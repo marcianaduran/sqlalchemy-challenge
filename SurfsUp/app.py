@@ -58,21 +58,34 @@ def precip():
 
 @app.route("/api/v1.0/stations")
 def stations():
-    return f"start/start/stations"
+    results = session.query(measurement.station).group_by(measurement.station).all()
+    session.close()
+    station_list = {}
+    station_list["stations"] = [x[0] for x in results]
+    return jsonify(station_list)
 
 @app.route("/api/v1.0/tobs")
 def tobs():
-    return f"start/start/tobs"
+    start_date = dt.datetime(2017,8,23) - dt.timedelta(days=365)
+    
+    results = session.query(measurement.tobs).filter(measurement.date >= start_date).filter(measurement.station == 'USC00519281').all()
+    session.close()
+    temps = list(np.ravel(results))
+    return jsonify(temps=temps)
 
 @app.route("/api/v1.0/temp/<start>")
 @app.route("/api/v1.0/temp/<start>/<end>")
 def stats(start=None,end=None):
+    var = [func.min(measurement.tobs),func.max(measurement.tobs),func.avg(measurement.tobs)]
     if not end:
-        results = session.query(func.min(measurement.tobs),func.max(measurement.tobs),func.avg(measurement.tobs)).filter(measurement.date >= start).all()
+        start = dt.datetime.strptime(start,'%Y%m%d')
+        results = session.query(*var).filter(measurement.date >= start).all()
         session.close()
         temps = list(np.ravel(results))
         return jsonify(temps)
-    results = session.query(func.min(measurement.tobs),func.max(measurement.tobs),func.avg(measurement.tobs)).filter(measurement.date >= start).filter(measurement.date <= end).all()
+    start = dt.datetime.strptime(start,'%Y%m%d')
+    end = dt.datetime.strptime(end,'%Y%m%d')
+    results = session.query(*var).filter(measurement.date >= start).filter(measurement.date <= end).all()
     session.close()
     temps = list(np.ravel(results))
     return jsonify(temps)
